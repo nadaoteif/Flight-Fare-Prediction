@@ -1,0 +1,302 @@
+1.	How many  purchasable ticket on Expedia that have 10 of seats remaining?
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+seat_filter = filter B by seatsRemaining == 10 ;
+group_all = group seat_filter all ;
+group_count = foreach group_all generate COUNT(seat_filter);
+dump group_count;
+
+---------------------------------------------------------------------------------------------------------------------
+2.	How many tickets on Expedia  that have non-stope and the price without fare is 90 USD or less 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+--skip the header 
+B = FILTER ticket BY legId != 'legId';
+-- filter non stop
+filter_nostope = filter B by isNonStop == 'TRUE';
+-- filter price without fare
+filter_price = filter filter_nostope by baseFare <= 90 ; 
+-- group all 
+group_price = group filter_price all ; 
+-- count the ticket
+group_count = foreach group_price generate COUNT(filter_price);
+dump group_count;
+
+--------------------------------------------------------------------------------------------------------------------- 
+3.	How many  tickets  on Expedia are going from Los Angeles to Boston with non-stops 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+Filter_lax = filter B by startingAirport == 'LAX' AND destinationAirport == 'BOS' AND isNonStop == 'TRUE';
+group_all = group Filter_lax all ;
+count_group = foreach  group_all generate COUNT(Filter_lax);
+dump count_group;
+
+---------------------------------------------------------------------------------------------------------------------
+4.	How many  tickets the destination Airport is Los Angeles . Group them by the destination Airport.
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+Filter_lax = filter B by startingAirport == 'LAX';
+group_lax = group Filter_lax  by (destinationAirport,totalTravelDistance) ;
+count_group = foreach group_lax generate flatten (group) as (destinationAirport,totalTravelDistance), COUNT(Filter_lax);
+dump count_group;
+
+--------------------------------------------------------------------------------------------------------------------
+5.	How many tickets in 16 Jun . Group them by Remaining seats.
+
+ticket = LOAD '/tmp/tmp_unzipped1/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+date_filter = filter B by flightDate =='6/16/2022';
+group_seat = group date_filter by seatsRemaining;
+count_group = foreach group_seat generate flatten (group) as seatsRemaining , COUNT(date_filter);
+dump count_group;
+
+---------------------------------------------------------------------------------------------------------------------
+6.	What is the MIN and MAX price with the fare that are going to Los Angeles , Group them by the start airport.
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+lax_filter = filter B By destinationAirport=='LAX';
+group_air = group lax_filter by startingAirport ;
+min_max = foreach group_air generate flatten (group) as startingAirport , 
+MIN(lax_filter.totalFare),MAX(lax_filter.totalFare);
+dump min_max;
+
+------------------------------------------------------------------------------------------------------------------
+7. 	what is the AVG price for Refundable ticket. Group them by startingAirport ,and order the result DESC;
+
+ticket = LOAD '/tmp/tmp_unzipped1/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+refun = filter B by isRefundable =='TRUE';
+group_tic = group refun by startingAirport;
+avg_group = foreach group_tic generate flatten (group) as startingAirport , ROUND(AVG(refun.totalFare));
+order_avg = ORDER avg_group BY $1 DESC;
+dump order_avg;
+------------------------------------------------------------------------------------------------------------------
+8.	What is the Mimimum and the Maximum Travel Distance , and tickets are Refundable . Group them By start airport.  
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+refun = filter B by isRefundable =='TRUE';
+group_tic = group refun by startingAirport;
+max_dis = foreach group_tic generate flatten (group) as startingAirport 
+,MAX(refun.totalTravelDistance);
+dump max_dis;
+
+------------------------------------------------------------------------------------------------------------------
+9.	listed tickets with basic economy  that going to Miami in Jun,and seats Remaining are 5 or more , order the price without tax ASC , and store the result 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+eco_filter = filter B by isBasicEconomy =='TRUE';
+miami_filter = filter eco_filter by destinationAirport =='MIA';
+seat_filter = filter miami_filter by seatsRemaining >= 5 ;
+order_price = order seat_filter by totalFare ASC;
+startswith_data = FOREACH order_price GENERATE *, STARTSWITH(flightDate,'6/')As jun;
+filter_true = filter startswith_data by jun == True ;
+dump filter_true;
+--STORE order_price INTO '/user/maria_dev/out/q_9/order_price' USING PigStorage (',');
+
+------------------------------------------------------------------------------------------------------------------
+10.	Find the size of startingAirport and group them by there size . 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+size_filter = foreach B generate SIZE(startingAirport);
+group_size = group size_filter by $0;
+dump group_size;
+
+------------------------------------------------------------------------------------------------------------------
+11.	Extract a number of  tickets in the month of June . Group the result by Airline Name and spilt each of them in a dataset .
+
+ticket = LOAD '/home/nad/flight/Dataset/flight.csv' USING PigStorage(',')
+as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,
+fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,
+totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,
+segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,
+segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+filter_name = filter B by segmentsAirlineName  =='Delta';
+filter_airplane = filter filter_name by segmentsEquipmentDescription == 'Airbus A321';
+group_all = group filter_airplane by startingAirport;
+count_them = foreach group_all generate flatten (group) as startingAirport , COUNT(filter_airplane);
+--dump count_them ;
+SPLIT count_them  into name_1 if startingAirport == 'ATL', name_2 if startingAirport == 'BOS' , name_3 if startingAirport == 'DEN',
+name_4 if startingAirport == 'DFW' , name_5 if startingAirport == 'DTW', name_6 if startingAirport == 'IAD' , name_7 if startingAirport == 'JFK',name_8 if startingAirport == 'LAX',
+name_9 if startingAirport == 'LGA', name_10 if startingAirport == 'MIA',name_11 if startingAirport == 'ORD';
+dump name_1;
+dump name_2;
+dump name_3;
+dump name_4;
+dump name_5;
+dump name_6;
+dump name_7;
+dump name_8;
+dump name_9;
+dump name_10;
+dump name_11;
+
+------------------------------------------------------------------------------------------------------------------
+12.	How many  purchasable ticket in 'Delta' Airline , And the airplane that used is 'Airbus A321'.
+
+ticket = LOAD '/home/nad/flight/Dataset/flight.csv' USING PigStorage(',')
+as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,
+fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,
+totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,
+segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,
+segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+satrt_date = foreach B GENERATE *, STARTSWITH(flightDate , '6/') as jun;
+filter_true = filter satrt_date by jun == True ;
+group_name = group filter_true by segmentsAirlineName;
+count_name = foreach group_name generate flatten (group) as segmentsAirlineName , COUNT(filter_true);
+dump count_name;
+
+
+------------------------------------------------------------------------------------------------------------------
+13.	How many flights have covered a distance of 3958 mile ? Group them by there start and end Airport.
+
+ticket = LOAD '/home/nad/flight/Dataset/flight.csv' USING PigStorage(',')
+as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,
+fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,
+totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,
+segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,
+segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+dis_flter = filter B by totalTravelDistance == 3958 ;
+group_two = group dis_flter  by (startingAirport,destinationAirport);
+count_them = foreach group_two generate flatten (group) as (startingAirport,destinationAirport), COUNT(dis_flter );
+dump count_them ;
+--Spilt count_them  into air_1 if $0 = *** ;
+
+------------------------------------------------------------------------------------------------------------------
+14.	How much tickets that have distination over 3900 mile with non-stope ? Order them by the cheapest 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+dis_flter = filter B by totalTravelDistance >= 3900;
+filter_stop = filter dis_flter by isNonStop == 'TRUE';
+order_cheap = order filter_stop by totalFare ASC ;
+dump order_cheap ;
+
+------------------------------------------------------------------------------------------------------------------
+15.	How many seat Remaining in may 31 , with Alaska Airlines and it is going to San Francisco 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+filter_date = filter B by flightDate == '5/31/2022';
+airpoet_filte = filter filter_date  by segmentsAirlineName == 'Alaska Airlines';
+filter_san = filter airpoet_filte by destinationAirport=='SFO';
+group_al = group filter_san all ;
+sum_seat = foreach group_al generate SUM(filter_san.seatsRemaining);
+dump sum_seat;
+
+------------------------------------------------------------------------------------------------------------------
+16.	join 2 dataset , the first one : basic economy  that going to Miami in Jun,and the seatsRemaining 5 or more
+			    the second one : flight in may 31  with Alaska Airlines that going to San Francisco , then store the result 
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+-- 1 
+eco_filte = filter B by isBasicEconomy =='TRUE';
+miami_filte = filter eco_filte by destinationAirport =='MIA';
+seat_filte = filter miami_filte by seatsRemaining >= 5 ;
+order_price = order seat_filte by totalFare ASC;
+startswith_data = FOREACH order_price GENERATE *, STARTSWITH(flightDate,'6/')As jun;
+filter_true = filter startswith_data by jun == True ;
+-- 2 
+filter_date = filter B by flightDate == '5/31/2022';
+airpoet_filte = filter filter_date  by segmentsAirlineName == 'Alaska Airlines';
+filter_san = filter airpoet_filte by destinationAirport=='SFO';
+
+
+
+-- combine filter_true & filter_san
+C = JOIN filter_true BY legId FULL OUTER, filter_san BY legId;
+
+--store 
+STORE C into '/home/nad/flight/Dataset/out/c' USING PigStorage(','); 
+
+------------------------------------------------------------------------------------------------------------------
+17.	Display Airline name and the number of flights that going from Los Angeles to Miami , Store the result 
+
+icket = LOAD '/home/nad/flight/Dataset/flight.csv' USING PigStorage(',')
+as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,
+fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,
+totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,
+segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,
+segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+
+filter_start = filter B by startingAirport == 'LAX';
+filter_end = filter filter_start by destinationAirport == 'MIA';
+
+group_name = group filter_end by segmentsAirlineName;
+count_name = foreach group_name generate flatten(group) as segmentsAirlineName , COUNT(filter_end);
+
+STORE count_name into '/home/nad/flight/Dataset/out/flightsname' USING PigStorage(',');
+--dump count_name ;
+
+------------------------------------------------------------------------------------------------------------------
+18.	Display the number of flights with airline name 'America Airlines' group them by the start-end airport
+
+ticket = LOAD '/home/nad/flight/Dataset/flight.csv' USING PigStorage(',')
+as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,
+fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,
+totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,
+segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,
+segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+
+filter_name = filter B by segmentsAirlineName == 'American Airlines';
+group_them = group filter_name by (startingAirport,destinationAirport);
+count_them = foreach group_them generate flatten (group) as (startingAirport,destinationAirport) , COUNT(filter_name);
+STORE count_them into '/home/nad/flight/Dataset/out/americanairline' USING PigStorage(',');
+--dump count_them;
+
+------------------------------------------------------------------------------------------------------------------
+19.	What is the flight with minimum Duration in Seconds
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+order_desc = order B by segmentsDurationInSeconds DESC;
+limit_1 = limit order_desc  1 ;
+dump limit_1 ;
+
+
+
+------------------------------------------------------------------------------------------------------------------
+20.	What is the flight with maximun Duration in Seconds
+
+ticket = LOAD '/tmp/tmp_unzipped/part-v000-o000-r-00000/' USING PigStorage(',')as(legId:chararray,searchDate:chararray,flightDate:chararray,startingAirport:chararray,destinationAirport:chararray,fareBasisCode:chararray,travelDuration:chararray,elapsedDays:int,isBasicEconomy:chararray,isRefundable:chararray,isNonStop:chararray,baseFare:float,totalFare:float,seatsRemaining:int,totalTravelDistance:int,segmentsDepartureTimeEpochSeconds:chararray,segmentsDepartureTimeRaw:chararray,segmentsArrivalTimeEpochSeconds:chararray,segmentsArrivalTimeRaw:chararray,segmentsArrivalAirportCode:chararray,segmentsDepartureAirportCode:chararray,segmentsAirlineName:chararray,segmentsAirlineCode:chararray,segmentsEquipmentDescription:chararray,segmentsDurationInSeconds:chararray,segmentsDistance:chararray,
+segmentsCabinCode:chararray);
+B = FILTER ticket BY legId != 'legId';
+order_asc = order B by segmentsDurationInSeconds ASC;
+limit_1 = limit order_asc  1 ;
+dump limit_1 ;
+
+
+------------------------------------------------------------------------------------------------------------------
+
+
+
