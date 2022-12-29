@@ -17,3 +17,12 @@ https://www.kaggle.com/datasets/dilwong/flightprices
 
 ### ppt:
 https://www.canva.com/design/DAFV--bSMb0/uVxS-08FR0gBofKo7DLsTA/edit?utm_content=DAFV--bSMb0&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
+
+### Conclusion:
+So, we have used the ML model for this data,
+As a result, we were able to successfully train our model to forecast pricing flights and complete the required work.
+
+### Future work:
+This may be expanded in the future to also include airline ticket payment details, which can offer more detail about each area, such as the timestamp of entry and exit, seat placement, covered auxiliary items, and so on.
+
+We will also examine specific technological Models, such as Deeper Learning methods, meanwhile striving to enhance existing models by modifying their hyper-parameters to get the optimum design for airline price prediction.
